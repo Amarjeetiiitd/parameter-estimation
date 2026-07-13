@@ -22,17 +22,16 @@ for $t \in [6, 60]$, given only noisy/plain $(x, y)$ sample points in `data/xy_d
 
 ## Project Structure
 
-The project has been consolidated into a single, interactive Jupyter Notebook for ease of submission, evaluation, and interview presentation:
+The project is structured around a primary Jupyter Notebook, supporting scripts, and reports:
 
-* **[parameter.ipynb](file:///D:/parameter%20estimation/parameter.ipynb)** — The **primary master file** containing:
+* **[parameter.ipynb](parameter.ipynb)** — The primary master notebook containing:
   * LaTeX mathematical derivations (coordinate inversion trick).
   * Data diagnostics and Exploratory Data Analysis (EDA).
   * Model equations and optimization routines.
   * Multi-start validation checks and confidence interval calculations.
   * Matplotlib inline figures.
-  * An Interview Cheatsheet with target discussion points.
-* **[requirements.txt](file:///D:/parameter%20estimation/requirements.txt)** — Python dependencies.
-* **[report.md](file:///D:/parameter%20estimation/report.md)** — Fully detailed 17-part academic/technical report.
+* **[requirements.txt](requirements.txt)** — Python dependencies.
+* **[report.md](report.md)** — Fully detailed 17-part academic/technical report.
 * **data/** — Folder containing the coordinate points `xy_data.csv`.
 * **outputs/** — Output folder for figures and the final JSON parameter payload.
 
@@ -76,4 +75,4 @@ Start the notebook server:
 ```bash
 jupyter notebook
 ```
-In the browser, open **[parameter.ipynb](file:///D:/parameter%20estimation/parameter.ipynb)** and select the **Python 3** (or **.venv**) kernel to execute the cells.
+In the browser, open **[parameter.ipynb](parameter.ipynb)** and select the **Python 3** (or **.venv**) kernel to execute the cells.
