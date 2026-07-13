@@ -81,23 +81,23 @@ def main() -> None:
     print("\n" + "=" * 60)
     print("RECOVERED PARAMETERS")
     print("=" * 60)
-    print(f"theta   = {fit.theta:.10f} rad  ({fit.theta_deg:.6f} deg)")
-    print(f"M       = {fit.M:.10f}")
-    print(f"X       = {fit.X:.10f}")
-    print(f"Final SSE cost        : {fit.cost:.6e}")
-    print(f"RMSE (closed-form)     : {fit.rmse:.6e}")
-    print(f"Max |residual|         : {fit.max_abs_residual:.6e}")
-    print(f"Chamfer/KDTree RMSE    : {fit.chamfer_rmse_validation:.6e} (cross-check)")
-    print(f"Std errors (theta,M,X) : {fit.param_std_errors}")
-    print(f"L1 Distance (residual) : {fit.l1_residual:.10f}  ({fit.l1_residual:.6e})")
-    print(f"Median Absolute Error  : {fit.median_error:.6e}")
-    print(f"90th Percentile Error  : {fit.p90_error:.6e}")
-    print(f"95th Percentile Error  : {fit.p95_error:.6e}")
-    print(f"99th Percentile Error  : {fit.p99_error:.6e}")
-    print(f"Coverage within 10um   : {fit.pct_within_1e5:.2f}%")
-    print(f"Coverage within 5um    : {fit.pct_within_5e6:.2f}%")
+    print(f"theta   = {fit.theta:.18f} rad  ({fit.theta_deg:.12f} deg)")
+    print(f"M       = {fit.M:.18f}")
+    print(f"X       = {fit.X:.18f}")
+    print(f"Final SSE cost        : {fit.cost * 2:.18e}")
+    print(f"RMSE (closed-form)     : {fit.rmse:.18e}")
+    print(f"Max |residual|         : {fit.max_abs_residual:.18e}")
+    print(f"Chamfer/KDTree RMSE    : {fit.chamfer_rmse_validation:.18e} (cross-check)")
+    print(f"Std errors (theta,M,X) : [{fit.param_std_errors[0]:.10e} {fit.param_std_errors[1]:.10e} {fit.param_std_errors[2]:.10e}]")
+    print(f"L1 Distance (residual) : {fit.l1_residual:.18f}  ({fit.l1_residual:.18e})")
+    print(f"Median Absolute Error  : {fit.median_error:.18e}")
+    print(f"90th Percentile Error  : {fit.p90_error:.18e}")
+    print(f"95th Percentile Error  : {fit.p95_error:.18e}")
+    print(f"99th Percentile Error  : {fit.p99_error:.18e}")
+    print(f"Coverage within 10um   : {fit.pct_within_1e5:.10f}%")
+    print(f"Coverage within 5um    : {fit.pct_within_5e6:.10f}%")
     print(f"Multi-start runs       : {fit.n_multistart_runs}")
-    print(f"Multi-start std dev    : {fit.multistart_spread}")
+    print(f"Multi-start std dev    : [{fit.multistart_spread[0]:.10e} {fit.multistart_spread[1]:.10e} {fit.multistart_spread[2]:.10e}]")
     print(f"Wall time              : {fit.wall_time_seconds:.2f} s")
     print("=" * 60)
 
@@ -107,7 +107,7 @@ def main() -> None:
         "theta_deg": fit.theta_deg,
         "M": fit.M,
         "X": fit.X,
-        "sse_cost": fit.cost,
+        "sse_cost": fit.cost * 2,
         "rmse": fit.rmse,
         "max_abs_residual": fit.max_abs_residual,
         "l1_residual": fit.l1_residual,
