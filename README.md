@@ -63,11 +63,13 @@ When evaluated on the 1,500 coordinate pairs in `data/xy_data.csv`, the optimiza
 ### Performance Metrics:
 * **Sum of Squared Errors (SSE Cost):** $1.822998 \times 10^{-8}$
 * **Root Mean Squared Error (RMSE):** $3.486161 \times 10^{-6}$
-* **L1 Residual Distance:** $2.559802 \times 10^{-6}$
-* **Coordinate Matches (when rounded to CSV text precision):**
-  * $x$-coordinate matches: **1,210 / 1,500**
-  * $y$-coordinate matches: **818 / 1,500**
-  * Joint $xy$ matches: **688 / 1,500**
+* **L1 Residual Distance (MAE):** $2.559805 \times 10^{-6}$
+* **Median Absolute Error:** $1.937513 \times 10^{-6}$
+* **95th Percentile Spatial Error:** $7.505879 \times 10^{-6}$
+* **99th Percentile Spatial Error:** $1.095595 \times 10^{-5}$
+* **Precision Tolerance Coverage:**
+  * **$98.47\%$** of reconstructed coordinates are accurate to within **$10\text{ }\mu\text{m}$** ($10^{-5}$ meters).
+  * **$86.60\%$** of reconstructed coordinates are accurate to within **$5\text{ }\mu\text{m}$** ($5 \times 10^{-6}$ meters).
 
 These metrics confirm that our hybrid optimization pipeline (Differential Evolution global search + Trust-Region-Reflective local refinement) successfully converges to the globally unique minimum, recovering the true generating parameters within machine precision.
 

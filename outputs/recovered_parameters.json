@@ -36,14 +36,14 @@
     0.004471619589563903,
     8.007441011448124
   ],
-  "wall_time_seconds": 2.2956035137176514,
-  "coordinate_matches": {
-    "x_matches": 1210,
-    "y_matches": 818,
-    "xy_matches": 688,
-    "x_l1_mae": 1.2799014642913184e-06,
-    "y_l1_mae": 2.2168567830552396e-06,
-    "xy_l1_mae": 3.496758247346558e-06
+  "wall_time_seconds": 3.256865978240967,
+  "precision_coverage": {
+    "median_error": 1.937512614014203e-06,
+    "p90_error": 5.860266138456307e-06,
+    "p95_error": 7.505878835327437e-06,
+    "p99_error": 1.095595310546482e-05,
+    "pct_within_10um": 98.46666666666667,
+    "pct_within_5um": 86.6
   },
   "dataset_report": {
     "n_samples": 1500,

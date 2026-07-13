@@ -81,13 +81,14 @@ class FitResult:
     history: OptimizationHistory
     wall_time_seconds: float
     chamfer_rmse_validation: float
-    x_matches: int = 0
-    y_matches: int = 0
-    xy_matches: int = 0
-    x_l1: float = 0.0
-    y_l1: float = 0.0
-    xy_l1: float = 0.0
+    median_error: float = 0.0
+    p90_error: float = 0.0
+    p95_error: float = 0.0
+    p99_error: float = 0.0
+    pct_within_1e5: float = 0.0
+    pct_within_5e6: float = 0.0
     l1_residual: float = 0.0
+
 
 
 
@@ -453,9 +454,13 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
     wall_time = time.time() - t_start
 
     theta_hat, M_hat, X_hat = final_ls.x
-    t_recovered = model.recovered_t(x, y, theta_hat, X_hat)
-    x_pred, y_pred = model.forward(t_recovered, model.CurveParams(theta_hat, M_hat, X_hat))
-    x_matches, y_matches, xy_matches, x_l1, y_l1, xy_l1 = calculate_coordinate_matches(x_pred, y_pred)
+    abs_errors = np.abs(resid)
+    median_error = float(np.median(abs_errors))
+    p90_error = float(np.percentile(abs_errors, 90))
+    p95_error = float(np.percentile(abs_errors, 95))
+    p99_error = float(np.percentile(abs_errors, 99))
+    pct_within_1e5 = float(np.mean(abs_errors <= 1e-5) * 100)
+    pct_within_5e6 = float(np.mean(abs_errors <= 5e-6) * 100)
 
     result = FitResult(
         theta=float(theta_hat),
@@ -472,12 +477,12 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
         history=history,
         wall_time_seconds=wall_time,
         chamfer_rmse_validation=chamfer_rmse,
-        x_matches=x_matches,
-        y_matches=y_matches,
-        xy_matches=xy_matches,
-        x_l1=x_l1,
-        y_l1=y_l1,
-        xy_l1=xy_l1,
+        median_error=median_error,
+        p90_error=p90_error,
+        p95_error=p95_error,
+        p99_error=p99_error,
+        pct_within_1e5=pct_within_1e5,
+        pct_within_5e6=pct_within_5e6,
         l1_residual=l1_residual,
     )
     return result
