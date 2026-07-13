@@ -89,6 +89,10 @@ def main() -> None:
     print(f"Max |residual|         : {fit.max_abs_residual:.6e}")
     print(f"Chamfer/KDTree RMSE    : {fit.chamfer_rmse_validation:.6e} (cross-check)")
     print(f"Std errors (theta,M,X) : {fit.param_std_errors}")
+    print(f"X Matches              : {fit.x_matches} / {len(x)}")
+    print(f"Y Matches              : {fit.y_matches} / {len(x)}")
+    print(f"XY Matches             : {fit.xy_matches} / {len(x)}")
+    print(f"L1 MAE (x, y, combined): {fit.x_l1:.6e}, {fit.y_l1:.6e}, {fit.xy_l1:.6e}")
     print(f"Multi-start runs       : {fit.n_multistart_runs}")
     print(f"Multi-start std dev    : {fit.multistart_spread}")
     print(f"Wall time              : {fit.wall_time_seconds:.2f} s")
@@ -109,6 +113,14 @@ def main() -> None:
         "n_multistart_runs": fit.n_multistart_runs,
         "multistart_std": fit.multistart_spread.tolist(),
         "wall_time_seconds": fit.wall_time_seconds,
+        "coordinate_matches": {
+            "x_matches": fit.x_matches,
+            "y_matches": fit.y_matches,
+            "xy_matches": fit.xy_matches,
+            "x_l1_mae": fit.x_l1,
+            "y_l1_mae": fit.y_l1,
+            "xy_l1_mae": fit.xy_l1,
+        },
         "dataset_report": {
             "n_samples": report.n_samples,
             "n_missing": report.n_missing,
