@@ -66,7 +66,7 @@ When evaluated on the 1,500 coordinate pairs in `data/xy_data.csv`, the optimiza
 ### Error & Precision Statistics:
 * **Sum of Squared Errors (SSE Cost):** $1.822998 \times 10^{-8}$
 * **Root Mean Squared Error (RMSE):** $3.486161 \times 10^{-6}$
-* **L1 Residual Distance (MAE):** $2.559805 \times 10^{-6}$
+* **L1 Distance:** `0.0000025598` ($2.559805 \times 10^{-6}$)
 * **Median Absolute Error:** $1.937513 \times 10^{-6}$
 * **95th Percentile Spatial Error:** $7.505879 \times 10^{-6}$
 * **99th Percentile Spatial Error:** $1.095595 \times 10^{-5}$
