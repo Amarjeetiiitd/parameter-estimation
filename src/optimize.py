@@ -81,6 +81,13 @@ class FitResult:
     history: OptimizationHistory
     wall_time_seconds: float
     chamfer_rmse_validation: float
+    x_matches: int = 0
+    y_matches: int = 0
+    xy_matches: int = 0
+    x_l1: float = 0.0
+    y_l1: float = 0.0
+    xy_l1: float = 0.0
+
 
 
 def _make_de_objective(
@@ -408,6 +415,10 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
     wall_time = time.time() - t_start
 
     theta_hat, M_hat, X_hat = final_ls.x
+    t_recovered = model.recovered_t(x, y, theta_hat, X_hat)
+    x_pred, y_pred = model.forward(t_recovered, model.CurveParams(theta_hat, M_hat, X_hat))
+    x_matches, y_matches, xy_matches, x_l1, y_l1, xy_l1 = calculate_coordinate_matches(x_pred, y_pred)
+
     result = FitResult(
         theta=float(theta_hat),
         M=float(M_hat),
@@ -423,5 +434,11 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
         history=history,
         wall_time_seconds=wall_time,
         chamfer_rmse_validation=chamfer_rmse,
+        x_matches=x_matches,
+        y_matches=y_matches,
+        xy_matches=xy_matches,
+        x_l1=x_l1,
+        y_l1=y_l1,
+        xy_l1=xy_l1,
     )
     return result
