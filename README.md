@@ -63,6 +63,7 @@ This engine supports two selectable loss function modes to optimize the coordina
 | :--- | :--- | :--- |
 | **Sum of Squared Errors (SSE Cost)** | **`1.822997935665769980e-08`** | `7.675779333157624514e-03` |
 | **Root Mean Squared Error (RMSE)** | **`3.486161151052133154e-06`** | `3.487060777375689980e-06` |
+| **R-squared ($R^2$ Score)** | **`0.999999999997918332`** | `0.999999999997917222` |
 | **L1 Distance (MAE)** | `0.000002559805022788` | **`0.000002558593111053`** |
 | **Median Absolute Error** | `1.937512614014202939e-06` | `1.919784526016599102e-06` |
 | **95th Percentile Spatial Error** | `7.505878835327436664e-06` | `7.513516196722136273e-06` |

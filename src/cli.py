@@ -89,6 +89,7 @@ def main() -> None:
     print(f"X       = {fit.X:.18f}")
     print(f"Final SSE cost        : {fit.cost * 2:.18e}")
     print(f"RMSE (closed-form)     : {fit.rmse:.18e}")
+    print(f"R-squared (R2 score)   : {fit.r2:.18f}")
     print(f"Max |residual|         : {fit.max_abs_residual:.18e}")
     print(f"Chamfer/KDTree RMSE    : {fit.chamfer_rmse_validation:.18e} (cross-check)")
     print(f"Std errors (theta,M,X) : [{fit.param_std_errors[0]:.10e} {fit.param_std_errors[1]:.10e} {fit.param_std_errors[2]:.10e}]")
@@ -113,6 +114,7 @@ def main() -> None:
         "X": fit.X,
         "sse_cost": fit.cost * 2,
         "rmse": fit.rmse,
+        "r2_score": fit.r2,
         "max_abs_residual": fit.max_abs_residual,
         "l1_residual": fit.l1_residual,
         "chamfer_rmse_validation": fit.chamfer_rmse_validation,

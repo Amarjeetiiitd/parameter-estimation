@@ -88,6 +88,7 @@ class FitResult:
     pct_within_1e5: float = 0.0
     pct_within_5e6: float = 0.0
     l1_residual: float = 0.0
+    r2: float = 0.0
 
 
 
@@ -482,6 +483,12 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray, loss: str = "l2") -> FitResu
     pct_within_1e5 = float(np.mean(abs_errors <= 1e-5) * 100)
     pct_within_5e6 = float(np.mean(abs_errors <= 5e-6) * 100)
 
+    # Calculate R2 coefficient of determination in transverse coordinate v
+    _, v_obs = model.inverse_rotate(x, y, theta_hat, X_hat)
+    ss_res = np.sum(resid**2)
+    ss_tot = np.sum((v_obs - np.mean(v_obs))**2)
+    r2_val = float(1.0 - (ss_res / ss_tot))
+
     result = FitResult(
         theta=float(theta_hat),
         M=float(M_hat),
@@ -504,5 +511,6 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray, loss: str = "l2") -> FitResu
         pct_within_1e5=pct_within_1e5,
         pct_within_5e6=pct_within_5e6,
         l1_residual=l1_residual,
+        r2=r2_val,
     )
     return result
