@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 from typing import Callable, List, Tuple
 
 import numpy as np
-from scipy.optimize import OptimizeResult, differential_evolution, least_squares
+from scipy.optimize import OptimizeResult, differential_evolution, least_squares, minimize
 from scipy.spatial import cKDTree
 
 from . import model
@@ -166,56 +166,77 @@ def local_refine(
     x: np.ndarray,
     y: np.ndarray,
     history: OptimizationHistory | None = None,
+    loss: str = "l2",
 ) -> OptimizeResult:
-    """Refine a global-search estimate with Trust-Region-Reflective least squares.
-
-    ``scipy.optimize.least_squares`` with ``method='trf'`` is used (rather
-    than unconstrained Levenberg-Marquardt) because it natively supports the
-    box constraints on ``theta``, ``M``, and ``X`` given in the assignment,
-    while still exhibiting the fast local (super-linear near the optimum)
-    convergence characteristic of Gauss-Newton-type methods on a
-    least-squares residual structure.
+    """Refine a global-search estimate with Trust-Region-Reflective least squares (L2) or Nelder-Mead (L1).
 
     Parameters
     ----------
     x0 : np.ndarray
-        Initial guess ``[theta, M, X]`` (typically the Differential
-        Evolution result).
+        Initial guess ``[theta, M, X]``.
     x, y : np.ndarray
         Observed data.
     history : OptimizationHistory, optional
-        If given, the cost at each internal residual evaluation is recorded.
+        If given, evaluation costs are recorded.
+    loss : str
+        Loss function to optimize: 'l2' (least squares) or 'l1' (least absolute deviations).
 
     Returns
     -------
     scipy.optimize.OptimizeResult
         Result of the local refinement.
     """
+    if loss == "l1":
+        def l1_objective(params: np.ndarray) -> float:
+            r = model.residuals_closed_form(params, x, y)
+            cost = float(np.mean(np.abs(r)))
+            if history is not None:
+                history.record_ls(cost)
+            return cost
 
-    def residual_fn(params: np.ndarray) -> np.ndarray:
-        r = model.residuals_closed_form(params, x, y)
-        if history is not None:
-            history.record_ls(float(np.sum(r**2)))
-        return r
+        result = minimize(
+            l1_objective,
+            x0,
+            method="Nelder-Mead",
+            bounds=list(zip(LOWER, UPPER)),
+            options={"xatol": 1e-16, "fatol": 1e-16, "maxiter": 10000},
+        )
+        # Wrap result to conform to least_squares output
+        result.cost = float(np.sum(np.abs(model.residuals_closed_form(result.x, x, y))))
+        result.fun = model.residuals_closed_form(result.x, x, y)
+        logger.info(
+            "Local refinement (L1) finished: cost=%.6e at theta=%.6f, M=%.6f, X=%.6f",
+            result.cost,
+            result.x[0],
+            result.x[1],
+            result.x[2],
+        )
+        return result
+    else:
+        def residual_fn(params: np.ndarray) -> np.ndarray:
+            r = model.residuals_closed_form(params, x, y)
+            if history is not None:
+                history.record_ls(float(np.sum(r**2)))
+            return r
 
-    result = least_squares(
-        residual_fn,
-        x0=x0,
-        bounds=(LOWER, UPPER),
-        method="trf",
-        xtol=1e-15,
-        ftol=1e-15,
-        gtol=1e-15,
-        max_nfev=20000,
-    )
-    logger.info(
-        "Local refinement finished: cost=%.6e at theta=%.6f, M=%.6f, X=%.6f",
-        result.cost,
-        result.x[0],
-        result.x[1],
-        result.x[2],
-    )
-    return result
+        result = least_squares(
+            residual_fn,
+            x0=x0,
+            bounds=(LOWER, UPPER),
+            method="trf",
+            xtol=1e-15,
+            ftol=1e-15,
+            gtol=1e-15,
+            max_nfev=20000,
+        )
+        logger.info(
+            "Local refinement (L2) finished: cost=%.6e at theta=%.6f, M=%.6f, X=%.6f",
+            result.cost,
+            result.x[0],
+            result.x[1],
+            result.x[2],
+        )
+        return result
 
 
 def multistart_refine(
@@ -224,27 +245,22 @@ def multistart_refine(
     best_x0: np.ndarray,
     n_restarts: int = 12,
     seed: int = 123,
+    loss: str = "l2",
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Run local refinement from multiple random initial points as a robustness check.
-
-    If the objective surface has multiple basins of attraction, independent
-    restarts from random points across the full bounded domain (plus the
-    global-search result itself) should converge to noticeably different
-    optima. Tight clustering of all restart results is direct empirical
-    evidence of a single, well-identified global optimum -- this is the
-    practical, data-driven substitute for a formal identifiability proof.
 
     Parameters
     ----------
     x, y : np.ndarray
         Observed data.
     best_x0 : np.ndarray
-        The best point found by global search (always included as one of
-        the restarts).
+        The best point found by global search.
     n_restarts : int
         Number of random restarts.
     seed : int
         RNG seed for reproducibility.
+    loss : str
+        Loss function to optimize: 'l2' (least squares) or 'l1' (least absolute deviations).
 
     Returns
     -------
@@ -260,7 +276,7 @@ def multistart_refine(
     solutions = []
     costs = []
     for x0 in starts:
-        res = local_refine(np.asarray(x0), x, y)
+        res = local_refine(np.asarray(x0), x, y, loss=loss)
         solutions.append(res.x)
         costs.append(res.cost)
 
@@ -315,6 +331,8 @@ def confidence_intervals(
     tuple
         ``(std_errors, covariance)``.
     """
+    if not hasattr(ls_result, "jac") or ls_result.jac is None:
+        return np.zeros(n_params), np.zeros((n_params, n_params))
     J = ls_result.jac
     resid = ls_result.fun
     dof = max(n_points - n_params, 1)
@@ -403,7 +421,7 @@ def calculate_coordinate_matches(x_pred: np.ndarray, y_pred: np.ndarray, csv_pat
         return 0, 0, 0, 0.0, 0.0, 0.0
 
 
-def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
+def run_full_pipeline(x: np.ndarray, y: np.ndarray, loss: str = "l2") -> FitResult:
     """Execute the complete global-then-local, multi-start optimization pipeline.
 
     Steps
@@ -424,6 +442,8 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
     ----------
     x, y : np.ndarray
         Observed data coordinates.
+    loss : str
+        Loss function to optimize: 'l2' (least squares) or 'l1' (least absolute deviations).
 
     Returns
     -------
@@ -434,12 +454,12 @@ def run_full_pipeline(x: np.ndarray, y: np.ndarray) -> FitResult:
     history = OptimizationHistory()
 
     de_result = global_search(x, y, history)
-    ls_result = local_refine(de_result.x, x, y, history)
+    ls_result = local_refine(de_result.x, x, y, history, loss=loss)
 
-    multistart_solutions, best_solution = multistart_refine(x, y, ls_result.x)
+    multistart_solutions, best_solution = multistart_refine(x, y, ls_result.x, loss=loss)
     # Use the best multi-start solution as the final estimate (should match
     # ls_result to high precision if the optimum is unique).
-    final_ls = local_refine(best_solution, x, y, history)
+    final_ls = local_refine(best_solution, x, y, history, loss=loss)
 
     std_errors, covariance = confidence_intervals(final_ls, n_points=len(x))
 

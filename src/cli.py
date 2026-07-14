@@ -45,6 +45,9 @@ def parse_args() -> argparse.Namespace:
         "--outdir", type=Path, default=Path("outputs"), help="Directory for results/figures"
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument(
+        "--loss", type=str, choices=["l1", "l2"], default="l2", help="Loss function to optimize: l1 or l2"
+    )
     return parser.parse_args()
 
 
@@ -63,7 +66,7 @@ def main() -> None:
     plotting.plot_raw_data(x, y, fig_dir)
 
     # ---- 3-6. Optimization, refinement, multi-start, CIs ------------------
-    fit = run_full_pipeline(x, y)
+    fit = run_full_pipeline(x, y, loss=args.loss)
 
     # ---- 7. Final plots ----------------------------------------------------
     plotting.plot_fit_overlay(x, y, fit, fig_dir)
@@ -103,6 +106,7 @@ def main() -> None:
 
     # ---- 9/10. Save figures (already saved) & recovered parameters --------
     result_payload = {
+        "loss_optimized": args.loss,
         "theta_rad": fit.theta,
         "theta_deg": fit.theta_deg,
         "M": fit.M,

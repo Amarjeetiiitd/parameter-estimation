@@ -28,5 +28,17 @@ class TestOptimize(unittest.TestCase):
         self.assertTrue(0.0 < fit.X < 100.0)
         self.assertTrue(fit.cost < 1e-4)
 
+    def test_fit_result_bounds_l1(self):
+        params = model.CurveParams(theta=0.5235983, M=0.03, X=55.0)
+        t_grid = np.linspace(6.0, 60.0, 50)
+        x_syn, y_syn = model.forward(t_grid, params)
+        
+        fit = optimize.run_full_pipeline(x_syn, y_syn, loss="l1")
+        
+        self.assertTrue(0.0 < fit.theta < np.deg2rad(50.0))
+        self.assertTrue(-0.05 < fit.M < 0.05)
+        self.assertTrue(0.0 < fit.X < 100.0)
+        self.assertTrue(fit.l1_residual < 1e-4)
+
 if __name__ == '__main__':
     unittest.main()

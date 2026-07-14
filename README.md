@@ -53,28 +53,29 @@ $$
 
 ## 2. High-Precision Benchmarks & Performance Metrics
 
-When evaluated on the 1,500 coordinate pairs in `data/xy_data.csv`, the optimization engine achieves complete convergence at the global minimum:
+This engine supports two selectable loss function modes to optimize the coordinate trajectory:
+1. **L2 (Least Squares) Mode (Default):** Minimizes the sum of squared errors. This is the standard formulation for normally distributed Gaussian noise and yields the absolute lowest SSE Cost.
+2. **L1 (Least Absolute Deviations) Mode:** Minimizes the sum of absolute errors. This formulation is highly robust to outliers (Laplacian noise) and yields the absolute lowest L1 MAE distance.
 
-### Optimal Parameter Estimates:
-* **$\theta$ (Orientation Angle):** `0.523598303175613511` rad ($\approx 29.999972932174^\circ$)
-* **$M$ (Damping Envelope):** `0.029999996873082680`
-* **$X$ (Cartesian Offset):** `54.999998212829467548`
+### Comparison Table of Optimization Modes:
 
-### Recovered Track Envelope:
-* **Resolved Curve Bound ($t$-domain):** `6.049405085351829` to `59.99517042539103` (conforms to bounds $6.0 \le t \le 60.0$)
+| Metric / Parameter | L2 Optimization Mode (Default) | L1 Optimization Mode (Robust) |
+| :--- | :--- | :--- |
+| **Sum of Squared Errors (SSE Cost)** | **`1.822997935665769980e-08`** | `7.675779333157624514e-03` |
+| **Root Mean Squared Error (RMSE)** | **`3.486161151052133154e-06`** | `3.487060777375689980e-06` |
+| **L1 Distance (MAE)** | `0.000002559805022788` | **`0.000002558593111053`** |
+| **Median Absolute Error** | `1.937512614014202939e-06` | `1.919784526016599102e-06` |
+| **95th Percentile Spatial Error** | `7.505878835327436664e-06` | `7.513516196722136273e-06` |
+| **Orientation Angle $\theta$ (rad)** | `0.523598303175613511` | `0.523598304384940927` |
+| **Damping Envelope $M$** | `0.029999996873082680` | `0.029999997081893534` |
+| **Offset Translation $X$** | `54.999998212829467548` | `54.999998339856240648` |
+| **Resolved Curve Bound ($t$-domain)** | `6.049405` to `59.995170` | `6.049405` to `59.995170` |
 
-### Error & Precision Statistics:
-* **Sum of Squared Errors (SSE Cost):** `1.822997935665769980e-08`
-* **Root Mean Squared Error (RMSE):** `3.486161151052133154e-06`
-* **L1 Distance:** `0.000002559805022788` (`2.559805022787734121e-06`)
-* **Median Absolute Error:** `1.937512614014202939e-06`
-* **95th Percentile Spatial Error:** `7.505878835327436664e-06`
-* **99th Percentile Spatial Error:** `1.095595310546482060e-05`
-* **Precision Tolerance Coverage:**
-  * **$98.4666666667\%$** of points reconstructed within **$10\text{ }\mu\text{m}$** ($10^{-5}$ meters).
-  * **$86.6000000000\%$** of points reconstructed within **$5\text{ }\mu\text{m}$** ($5 \times 10^{-6}$ meters).
+### Precision Tolerance Coverage (L2 vs. L1):
+* **L2-Mode:** **$98.4666666667\%$** of points accurate to within **$10\text{ }\mu\text{m}$**; **$86.6000000000\%$** to within **$5\text{ }\mu\text{m}$**.
+* **L1-Mode:** **$98.4666666667\%$** of points accurate to within **$10\text{ }\mu\text{m}$**; **$86.4000000000\%$** to within **$5\text{ }\mu\text{m}$**.
 
-### Solver Confidence & Uncertainty Quantification:
+### Solver Confidence & Uncertainty Quantification (L2-Mode):
 * **Parameter Standard Errors:**
   * $\text{se}(\theta) = 2.8612269191 \times 10^{-9}$ rad
   * $\text{se}(M) = 7.9293354471 \times 10^{-10}$
